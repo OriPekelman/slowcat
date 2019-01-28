@@ -1,0 +1,38 @@
+#!/usr/local/bin/ruby -w
+# @Kotnik: do this in ruby because you get slowness for free
+
+if $stdin.tty?
+  begin
+    input = File.open(ARGV.shift, "r") 
+  rescue
+    STDERR.puts "Either provide a filename or pipe something to slowcat"
+    exit(1)
+  end
+else
+  input = STDIN
+end
+
+until ARGV.empty? do
+  char_rythme = ARGV.shift.to_f
+  line_wait = ARGV.shift.to_f
+  $fuzzy_factor = ARGV.shift.to_f
+end
+
+char_rythme ||= 40.0
+line_wait ||= 0.5
+$fuzzy_factor ||= 1000
+
+chars_cps=  1/char_rythme
+
+def fuzz(number)
+  (number + number * (rand(0 .. $fuzzy_factor).to_f - $fuzzy_factor.to_f/2)/100).abs
+end
+
+while line = input.gets
+  chars = line.split('')
+  chars.each { |c|
+    print c
+    sleep(fuzz(chars_cps))
+  }
+  sleep(fuzz(line_wait))
+end
